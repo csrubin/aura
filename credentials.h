@@ -1,2 +1,2 @@
-#define WIFI_SSID "DreamTeam"
-#define WIFI_PASS "nosleeptonight"
+#define WIFI_SSID "201B"
+#define WIFI_PASS "wemoved10beds"
