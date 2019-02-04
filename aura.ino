@@ -43,12 +43,12 @@ fauxmoESP fauxmo;
 #define ID_SAMVOLUP    "Samsung volume up"
 #define ID_SAMVOLDOWN  "Samsung volume down"
  
-#define ID_PROJTV        "Projector"
+#define ID_PROJ          "Projector"
 #define ID_PROJMUTE      "Projector mute"
 #define ID_PROJVOLUP     "Projector volume up"
 #define ID_PROJVOLDOWN   "Projector volume down"
 #define ID_PROJSRC       "Projector source"
-#define ID_PROJSLEEPTIMER  "Sleep Timer"
+#define ID_PROJSLEEPTIMER "Sleep Timer"
 
 const uint16_t kIrLed = 5;  // ESP8266 GPIO pin to use. Recommended: 4 (D2).
 
@@ -65,9 +65,9 @@ int sammute  = 0x00E0E0F00F;
 
 int projprojpower = 0x00c12fe817;
 int projup        = 0x00c12f41be;
-int projdown      = 0x00c12fc13e 
+int projdown      = 0x00c12fc13e;
 int projmute      = 0x00c12f28d7;
-int projsource    = 0x00c12f02fe;
+int projsrc       = 0x00c12f02fe;
 int projsleeptimer = 0x00c12fe41b;
 
 IRsend irsend(kIrLed);  // Set the GPIO to be used to sending the message.
