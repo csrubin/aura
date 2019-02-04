@@ -301,24 +301,32 @@ void volumeSam(int code, unsigned char value)
 }
 
 void flash(int skip) {
-  for (int16_t i = 0; i < 255 - skip; i += skip) {
+  Serial.println("First loop:");
+  for (int16_t i = 0; i < 240; i += skip) {
     for (int16_t j = 0; j < strip.numPixels(); j++) {
       strip.setPixelColor(j, 0, 0, i);
       strip.show();
+      Serial.println("i = " + i + ", j = " + j);
     }
   }
+  Serial.println("Second loop:");
   for (int16_t j = 0; j < strip.numPixels(); j++) {
     strip.setPixelColor(j, 0, 0, 255);
     strip.show();
+    Serial.println("j = " + j);
   }
-  for (int16_t i = 255; i > skip; i = i - skip) {
+  Serial.println("Third loop:");
+  for (int16_t i = 240; i > skip; i = i - skip) {
     for (int16_t j = 0; j < strip.numPixels(); j++) {
       strip.setPixelColor(j, 0, 0, i);
       strip.show();
+      Serial.println("i = " + i + ", j = " + j);
     }
   }
+  Serial.println("Fourth loop:");
   for (int16_t j = 0; j < strip.numPixels(); j++) {
     strip.setPixelColor(j, 0, 0, 0);
     strip.show();
+    Serial.println("j = " + j);
   }
 }
