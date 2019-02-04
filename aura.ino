@@ -42,6 +42,13 @@ fauxmoESP fauxmo;
 #define ID_SAMMUTE     "Samsung mute"
 #define ID_SAMVOLUP    "Samsung volume up"
 #define ID_SAMVOLDOWN  "Samsung volume down"
+ 
+#define ID_PROJTV        "Projector"
+#define ID_PROJMUTE      "Projector mute"
+#define ID_PROJVOLUP     "Projector volume up"
+#define ID_PROJVOLDOWN   "Projector volume down"
+#define ID_PROJSRC       "Projector source"
+#define ID_PROJSLEEPTIMER  "Sleep Timer"
 
 const uint16_t kIrLed = 5;  // ESP8266 GPIO pin to use. Recommended: 4 (D2).
 
@@ -56,16 +63,25 @@ int samup    = 0x00E0E0E01F;
 int samdown  = 0x00E0E0D02F;
 int sammute  = 0x00E0E0F00F;
 
+int projprojpower = 0x00c12fe817;
+int projup        = 0x00c12f41be;
+int projdown      = 0x00c12fc13e 
+int projmute      = 0x00c12f28d7;
+int projsource    = 0x00c12f02fe;
+int projsleeptimer = 0x00c12fe41b;
+
 IRsend irsend(kIrLed);  // Set the GPIO to be used to sending the message.
 //IRrecv irrecv(kRecvPin);
 
 // -----------------------------------------------------------------------------
 //turn on/off the tv by sending IR command
-void toggleLG(int);
-void toggleSam(int);
-void volumeLG(int, unsigned char);
+void sendNEC(int);
+void sendSam(int);
+void volumeNEC(int, unsigned char);
 void volumeSam(int, unsigned char);
 void flash(int);
+void startSleepTimer(int);
+void srcProj(int);
 
 // -----------------------------------------------------------------------------
 // Wifi
@@ -123,25 +139,29 @@ void setup() {
   fauxmo.setPort(80); // This is required for gen3 devices
 
   // You have to call enable(true) once you have a WiFi connection
-  // You can enable or disable the library at any moment
-  // Disabling it will prevent the devices from being discovered and switched
   fauxmo.enable(true);
 
   // You can use different ways to invoke alexa to modify the devices state:
   // "Alexa, turn yellow lamp on"
   // "Alexa, turn on yellow lamp
-  // "Alexa, set yellow lamp to fifty" (50 means 50% of brightness, note, this example does not use this functionality)
+  // "Alexa, set yellow lamp to fifty" (50 means 50% of brightness)
 
   // Add virtual devices
-  fauxmo.addDevice(ID_LGTV     );
-  fauxmo.addDevice(ID_LGMUTE   );
-  fauxmo.addDevice(ID_LGVOLUP  );
-  fauxmo.addDevice(ID_LGVOLDOWN);
-  fauxmo.addDevice(ID_SAMTV     );
-  fauxmo.addDevice(ID_SAMMUTE   );
-  fauxmo.addDevice(ID_SAMVOLUP  );
-  fauxmo.addDevice(ID_SAMVOLDOWN);
-  fauxmo.addDevice(ID_TVS);
+  // fauxmo.addDevice(ID_LGTV     );
+  // fauxmo.addDevice(ID_LGMUTE   );
+  // fauxmo.addDevice(ID_LGVOLUP  );
+  // fauxmo.addDevice(ID_LGVOLDOWN);
+  // fauxmo.addDevice(ID_SAMTV     );
+  // fauxmo.addDevice(ID_SAMMUTE   );
+  // fauxmo.addDevice(ID_SAMVOLUP  );
+  // fauxmo.addDevice(ID_SAMVOLDOWN);
+  // fauxmo.addDevice(ID_TVS);
+  fauxmo.addDevice(ID_PROJ        );
+  fauxmo.addDevice(ID_PROJMUTE      );
+  fauxmo.addDevice(ID_PROJVOLUP     );
+  fauxmo.addDevice(ID_PROJVOLDOWN   );
+  fauxmo.addDevice(ID_PROJSRC       );
+  fauxmo.addDevice(ID_PROJSLEEPTIMER);
 
   fauxmo.onSetState([](unsigned char device_id, const char * device_name, bool state, unsigned char value) {
 
@@ -156,27 +176,45 @@ void setup() {
     // Checking for device_id is simpler if you are certain about the order they are loaded and it does not change.
     // Otherwise comparing the device_name is safer.
 
-    if (strcmp(device_name, ID_LGTV) == 0) {
-      toggleLG(lgpower);
+    if (strcmp(device_name, ID_PROJ) == 0) {
+      sendNEC(projdown);
+      delay(20);
+      sendNEC(projdown);
+    } else if (strcmp(device_name, ID_PROJMUTE) == 0) {
+      sendNEC(projmute);
+    } else if (strcmp(device_name, ID_PROJVOLUP) == 0) {
+      volumeNEC(projup, value);
+    } else if (strcmp(device_name, ID_PROJVOLDOWN) == 0) {
+      volumeNEC(projdown, value);
+    } else if (strcmp(device_name, ID_PROJSRC) == 0) {
+      //srcProj(projsrc); //change to this eventually
+      sendNEC(projsrc);
+    } else if (strcmp(device_name, ID_PROJSLEEPTIMER) == 0) {
+      //startSleepTimer(projsleeptimer); //change to this eventually
+      sendNEC(projsleeptimer);
+    }
+    /*if (strcmp(device_name, ID_LGTV) == 0) {
+      sendNEC(lgpower);
     } else if (strcmp(device_name, ID_LGMUTE) == 0) {
-      toggleLG(lgmute);
+      sendNEC(lgmute);
     } else if (strcmp(device_name, ID_LGVOLUP) == 0) {
-      volumeLG(lgup, value);
+      volumeNEC(lgup, value);
     } else if (strcmp(device_name, ID_LGVOLDOWN) == 0) {
-      volumeLG(lgdown, value);
+      volumeNEC(lgdown, value);
     } else if (strcmp(device_name, ID_SAMTV) == 0) {
-      toggleSam(sampower);
+      sendSam(sampower);
     } else if (strcmp(device_name, ID_SAMMUTE) == 0) {
-      toggleSam(sammute);
+      sendSam(sammute);
     } else if (strcmp(device_name, ID_SAMVOLUP) == 0) {
       volumeSam(samup, value);
     } else if (strcmp(device_name, ID_SAMVOLDOWN) == 0) {
       volumeSam(samdown, value);
     } else if (strcmp(device_name, ID_TVS) == 0) {
-      toggleSam(sampower);
+      sendSam(sampower);
       delay(50);
-      toggleLG(lgpower);
-    }
+      sendNEC(lgpower);
+    }*/
+
   });
 
 }
@@ -190,7 +228,7 @@ void loop() {
   // This is a sample code to output free heap every 5 seconds
   // This is a cheap way to detect memory leaks
   static unsigned long last = millis();
-  if (millis() - last > 5000) {
+  if (millis() - last > 10000) {
     last = millis();
     Serial.printf("[MAIN] Free heap: %d bytes\n", ESP.getFreeHeap());
   }
@@ -201,21 +239,37 @@ void loop() {
 
 }
 
-void toggleLG(int code)
+void sendNEC(int code)
 {
   Serial.println("Sending IR toggle command to LG");
   irsend.sendNEC(code, 32);
   flash(4);
 }
 
-void toggleSam(int code)
+void sendSam(int code)
 {
   Serial.println("Sending IR toggle command to Samsung");
   irsend.sendSAMSUNG(code, 32);
   flash(4);
 }
 
-void volumeLG(int code, unsigned char value)
+void srcProj(int code)
+{ // maybe change to take in a value and set sleep timer accordingly
+  // (differing number of ir commands to select different options)
+  Serial.println("Sending IR command to change input source");
+  irsend.sendNEC(code, 32);
+  flash(4);
+}
+
+void startSleepTimer(int code)
+{ // maybe change to take in a value and set sleep timer accordingly
+  // (differing number of ir commands to select different options)
+  Serial.println("Sending IR code to turn on sleep timer");
+  irsend.sendNEC(code, 32);
+  flash(4);
+}
+
+void volumeNEC(int code, unsigned char value)
 {
   if (value != 255)
   {
