@@ -178,7 +178,7 @@ void setup() {
 
     if (strcmp(device_name, ID_PROJ) == 0) {
       sendNEC(projdown);
-      delay(20);
+      delay(1000);
       sendNEC(projdown);
     } else if (strcmp(device_name, ID_PROJMUTE) == 0) {
       sendNEC(projmute);
@@ -243,14 +243,14 @@ void sendNEC(int code)
 {
   Serial.println("Sending IR toggle command to LG");
   irsend.sendNEC(code, 32);
-  flash(4);
+  //flash(4);
 }
 
 void sendSam(int code)
 {
   Serial.println("Sending IR toggle command to Samsung");
   irsend.sendSAMSUNG(code, 32);
-  flash(4);
+  //flash(4);
 }
 
 void srcProj(int code)
@@ -258,7 +258,7 @@ void srcProj(int code)
   // (differing number of ir commands to select different options)
   Serial.println("Sending IR command to change input source");
   irsend.sendNEC(code, 32);
-  flash(4);
+  //flash(4);
 }
 
 void startSleepTimer(int code)
@@ -266,7 +266,7 @@ void startSleepTimer(int code)
   // (differing number of ir commands to select different options)
   Serial.println("Sending IR code to turn on sleep timer");
   irsend.sendNEC(code, 32);
-  flash(4);
+  //flash(4);
 }
 
 void volumeNEC(int code, unsigned char value)
@@ -282,7 +282,7 @@ void volumeNEC(int code, unsigned char value)
     }
 
   }
-  flash(4);
+  //flash(4);
 }
 
 void volumeSam(int code, unsigned char value)
@@ -297,36 +297,34 @@ void volumeSam(int code, unsigned char value)
       delay(50);
     }
   }
-  flash(4);
+  //flash(4);
+}
+
+void setLEDColor(int c) {
+  for (int16_t j = 0; j < strip.numPixels(); j++) {
+      strip.setPixelColor(j, 0, 0, c);
+      Serial.print("Brightness = ");
+      Serial.print(c);
+      Serial.print(", LED = ");
+      Serial.println(j);
+  }
+  strip.show();
 }
 
 void flash(int skip) {
   Serial.println("First loop:");
   for (int16_t i = 0; i < 240; i += skip) {
-    for (int16_t j = 0; j < strip.numPixels(); j++) {
-      strip.setPixelColor(j, 0, 0, i);
-      strip.show();
-      Serial.println("i = " + i + ", j = " + j);
-    }
+    setLEDColor(i); 
   }
+  
   Serial.println("Second loop:");
-  for (int16_t j = 0; j < strip.numPixels(); j++) {
-    strip.setPixelColor(j, 0, 0, 255);
-    strip.show();
-    Serial.println("j = " + j);
-  }
+  setLEDColor(255);
+  
   Serial.println("Third loop:");
   for (int16_t i = 240; i > skip; i = i - skip) {
-    for (int16_t j = 0; j < strip.numPixels(); j++) {
-      strip.setPixelColor(j, 0, 0, i);
-      strip.show();
-      Serial.println("i = " + i + ", j = " + j);
-    }
+    setLEDColor(i);
   }
+    
   Serial.println("Fourth loop:");
-  for (int16_t j = 0; j < strip.numPixels(); j++) {
-    strip.setPixelColor(j, 0, 0, 0);
-    strip.show();
-    Serial.println("j = " + j);
-  }
+  setLEDColor(0);  
 }
