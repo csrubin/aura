@@ -244,14 +244,14 @@ void sendNEC(int code)
 {
   Serial.println("Sending IR toggle command to LG");
   irsend.sendNEC(code, 32);
-  flash(20);
+  flash(10);
 }
 
 void sendSam(int code)
 {
   Serial.println("Sending IR toggle command to Samsung");
   irsend.sendSAMSUNG(code, 32);
-  flash(20);
+  flash(10);
 }
 
 void srcProj(int code)
@@ -259,7 +259,7 @@ void srcProj(int code)
   // (differing number of ir commands to select different options)
   Serial.println("Sending IR command to change input source");
   irsend.sendNEC(code, 32);
-  flash(20);
+  flash(10);
 }
 
 void startSleepTimer(int code)
@@ -267,7 +267,7 @@ void startSleepTimer(int code)
   // (differing number of ir commands to select different options)
   Serial.println("Sending IR code to turn on sleep timer");
   irsend.sendNEC(code, 32);
-  flash(20);
+  flash(10);
 }
 
 void volumeNEC(int code, unsigned char value)
@@ -281,10 +281,10 @@ void volumeNEC(int code, unsigned char value)
       irsend.sendNEC(code, 32);
       Serial.print("Sent volume up number: ");
       Serial.println(i);
-      delay(1000);
+      delay(100);
     }
   }
-  flash(20);
+  flash(10);
 }
 
 void volumeSam(int code, unsigned char value)
@@ -299,7 +299,7 @@ void volumeSam(int code, unsigned char value)
       delay(50);
     }
   }
-  flash(20);
+  flash(10);
 }
 
 void setLEDColor(int c) {
