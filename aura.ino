@@ -46,8 +46,8 @@ fauxmoESP fauxmo;
  
 #define ID_PROJ          "Projector"
 #define ID_PROJMUTE      "Projector mute"
-#define ID_PROJVOLUP     "Projector volume up"
-#define ID_PROJVOLDOWN   "Projector volume down"
+#define ID_PROJVOLUP     "Turn Projector volume up"
+#define ID_PROJVOLDOWN   "Turn Projector volume down"
 #define ID_PROJSRC       "Projector source"
 #define ID_PROJSLEEPTIMER "Sleep Timer"
 
@@ -178,13 +178,13 @@ void setup() {
     // Otherwise comparing the device_name is safer.
 
     if (strcmp(device_name, ID_PROJ) == 0) {
-      sendNEC(proj);
+      sendNEC(projpower);
       delay(100);
       sendNEC(projpower);
     } else if (strcmp(device_name, ID_PROJMUTE) == 0) {
       sendNEC(projmute);
     } else if (strcmp(device_name, ID_PROJVOLUP) == 0) {
-      volumeNEC(projup, value);
+      volumeNEC(lgup, value);
     } else if (strcmp(device_name, ID_PROJVOLDOWN) == 0) {
       volumeNEC(projdown, value);
     } else if (strcmp(device_name, ID_PROJSRC) == 0) {
@@ -244,14 +244,14 @@ void sendNEC(int code)
 {
   Serial.println("Sending IR toggle command to LG");
   irsend.sendNEC(code, 32);
-  //flash(4);
+  flash(20);
 }
 
 void sendSam(int code)
 {
   Serial.println("Sending IR toggle command to Samsung");
   irsend.sendSAMSUNG(code, 32);
-  //flash(4);
+  flash(20);
 }
 
 void srcProj(int code)
@@ -259,7 +259,7 @@ void srcProj(int code)
   // (differing number of ir commands to select different options)
   Serial.println("Sending IR command to change input source");
   irsend.sendNEC(code, 32);
-  //flash(4);
+  flash(20);
 }
 
 void startSleepTimer(int code)
@@ -267,7 +267,7 @@ void startSleepTimer(int code)
   // (differing number of ir commands to select different options)
   Serial.println("Sending IR code to turn on sleep timer");
   irsend.sendNEC(code, 32);
-  //flash(4);
+  flash(20);
 }
 
 void volumeNEC(int code, unsigned char value)
@@ -279,12 +279,12 @@ void volumeNEC(int code, unsigned char value)
     for (int i = 0; i < count; i++)
     {
       irsend.sendNEC(code, 32);
-      delay(100);
+      Serial.print("Sent volume up number: ");
+      Serial.println(i);
+      delay(1000);
     }
-
   }
-  
-  //flash(4);
+  flash(20);
 }
 
 void volumeSam(int code, unsigned char value)
@@ -299,34 +299,21 @@ void volumeSam(int code, unsigned char value)
       delay(50);
     }
   }
-  //flash(4);
+  flash(20);
 }
 
 void setLEDColor(int c) {
   for (int16_t j = 0; j < strip.numPixels(); j++) {
       strip.setPixelColor(j, 0, 0, c);
-      Serial.print("Brightness = ");
-      Serial.print(c);
-      Serial.print(", LED = ");
-      Serial.println(j);
   }
   strip.show();
 }
 
 void flash(int skip) {
-  Serial.println("First loop:");
   for (int16_t i = 0; i < 240; i += skip) {
-    setLEDColor(i);;
-  }
-  
-  Serial.println("Second loop:");
+    setLEDColor(i);}
   setLEDColor(255);
-  
-  Serial.println("Third loop:");
   for (int16_t i = 240; i > skip; i = i - skip) {
-    setLEDColor(i);
-  }
-    
-  Serial.println("Fourth loop:");
+    setLEDColor(i);}
   setLEDColor(0);  
 }
