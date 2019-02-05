@@ -9,6 +9,7 @@
 #include <IRsend.h>    // IR library 
 #include <IRrecv.h>
 #include <IRutils.h>
+#include <IRremoteESP8266.h>
 #include <debug.h>
 #define PIN 14
 //
@@ -63,7 +64,7 @@ int samup    = 0x00E0E0E01F;
 int samdown  = 0x00E0E0D02F;
 int sammute  = 0x00E0E0F00F;
 
-int projprojpower = 0x00c12fe817;
+int projpower     = 0x00c12fe817;
 int projup        = 0x00c12f41be;
 int projdown      = 0x00c12fc13e;
 int projmute      = 0x00c12f28d7;
@@ -177,9 +178,9 @@ void setup() {
     // Otherwise comparing the device_name is safer.
 
     if (strcmp(device_name, ID_PROJ) == 0) {
-      sendNEC(projdown);
-      delay(1000);
-      sendNEC(projdown);
+      sendNEC(proj);
+      delay(100);
+      sendNEC(projpower);
     } else if (strcmp(device_name, ID_PROJMUTE) == 0) {
       sendNEC(projmute);
     } else if (strcmp(device_name, ID_PROJVOLUP) == 0) {
@@ -278,10 +279,11 @@ void volumeNEC(int code, unsigned char value)
     for (int i = 0; i < count; i++)
     {
       irsend.sendNEC(code, 32);
-      delay(10);
+      delay(100);
     }
 
   }
+  
   //flash(4);
 }
 
@@ -314,7 +316,7 @@ void setLEDColor(int c) {
 void flash(int skip) {
   Serial.println("First loop:");
   for (int16_t i = 0; i < 240; i += skip) {
-    setLEDColor(i); 
+    setLEDColor(i);;
   }
   
   Serial.println("Second loop:");
